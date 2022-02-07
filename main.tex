@@ -1,0 +1,138 @@
+\documentclass[12pt]{report}
+\usepackage{amsmath, amssymb, amsfonts, amsthm, mathtools,mathrsfs}
+\usepackage{thmtools}
+\usepackage[utf8]{inputenc}
+\usepackage[inline]{enumitem}
+\usepackage[colorlinks=true]{hyperref}
+\usepackage{multicol}
+\usepackage{witharrows}
+\usepackage{tikz}
+\usetikzlibrary{automata,positioning}
+\usetikzlibrary{decorations.markings}
+\usepackage{verbatim}
+\usetikzlibrary{arrows.meta} 
+\usepackage{witharrows}
+\usepackage[useregional, showdow]{datetime2}
+\usepackage{physics}
+\DTMlangsetup[en-GB]{abbr}
+\usepackage{xcolor}
+\usepackage[normalem]{ulem}
+\usetikzlibrary{chains,shapes.multipart}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\usepackage{bbm}
+\usepackage[page,toc,titletoc,title]{appendix}
+\usepackage{tocloft}
+\setlength\parindent{0pt}
+\usepackage{parskip}
+
+\def\D{\mathrm{d}}
+\def\I{\mathbb{I}}
+\def\P{\mathbb{P}}
+\def\E{\mathbb{E}}
+\def\Var{\text{Var}}
+\def\F{\mathcal{F}} 
+\def\ccdf{\overline{F}} 
+\newcommand*{\thead}[1]{\multicolumn{1}{c}{\bfseries #1}}
+\renewcommand{\arraystretch}{1}
+\newcommand{\indep}{\perp \!\!\! \perp}
+
+\usepackage[framemethod=tikz]{mdframed}
+\mdfdefinestyle{theoremstyle}{%
+	% linecolor=gray,linewidth=1pt,%
+	% frametitlerule=true,%
+	frametitlebackgroundcolor=white,
+	% backgroundcolor=  gray!20,	
+	bottomline=false, topline=false, rightline=false, leftline=true,
+	innerlinewidth=0.7pt, outerlinewidth=0.2pt, middlelinewidth=2pt, middlelinecolor=white, %
+	innerleftmargin=6pt,
+	% innertopmargin=-1pt,
+	skipabove=10pt,
+	% fontcolor=blue,
+	% innerbottommargin=-0.5pt,
+}
+\mdtheorem[style=theoremstyle]{defn}[thm]{Definition}[section]
+\mdtheorem[style=theoremstyle]{lem}[thm]{Lemma}
+\mdtheorem[style=theoremstyle]{prop}[thm]{Proposition}
+\mdtheorem[style=theoremstyle]{thm}{Theorem}[section]
+\mdtheorem[style=theoremstyle]{cor}{Corollary}[section]
+
+
+\newcommand*{\doublerule}{\hrule width \hsize height 1pt \kern 0.5mm \hrule width \hsize height 2pt}
+\newcommand{\doublerulefill}{\leavevmode\leaders\vbox{\hrule width .1pt\kern1pt\hrule}\hfill\kern0pt}
+\def\ddfrac#1#2{\displaystyle\frac{\displaystyle #1}{\displaystyle #2}}
+
+
+%\newcommand{\Res}{\operatorname{Res}}
+
+\theoremstyle{definition}
+% \numberwithin{thm}{section}
+% \newtheorem{lem}[thm]{Lemma}
+% \newtheorem{defn}[thm]{Definition}
+% \newtheorem{prop}[thm]{Proposition}
+% \newtheorem{cor}[thm]{Corollary}
+% \newtheorem{ex}{Example}
+
+
+\let\emptyset\varnothing
+
+\usepackage{titlesec}
+\titleformat{\section}[block]{\Large\filcenter\bfseries}{\S\thesection.}{0.25cm}{\Large}
+\titleformat{\subsection}[block]{\large\bfseries\sffamily}{\S\S\thesubsection.}{0.2cm}{\large}
+
+\usepackage[a4paper]{geometry}
+\usepackage{lipsum}
+\usepackage{xcolor,cancel}
+
+\usepackage{cleveref}
+\crefname{thm}{Theorem}{Theorems}
+\crefname{lem}{Lemma}{Lemmas}
+\crefname{defn}{Definition}{Definitions}
+\crefname{prop}{Proposition}{Propositions}
+\crefname{cor}{Corollary}{Corollaries}
+\crefname{equation}{}{}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+\usepackage{mdframed}
+\newenvironment{blockquote}
+{\begin{mdframed}[skipabove=0pt, skipbelow=0pt, innertopmargin=4pt, innerbottommargin=4pt, bottomline=false,topline=false,rightline=false, linewidth=2pt]}
+{\end{mdframed}}
+\newenvironment{soln}{\begin{proof}[Solution]}{\end{proof}}
+
+\title{Stochastic Optimisation\\}
+\author{Ishan Kapnadak}
+\date{Spring Semester 2020-21\\~\\Updated on: \textcolor{blue}{\DTMToday}}
+
+\begin{document}
+\tikzset{lab dis/.store in=\LabDis,
+  lab dis=-0.4,
+  ->-/.style args={at #1 with label #2}{decoration={
+    markings,
+    mark=at position #1 with {\arrow{>}; \node at (0,\LabDis) {#2};}},postaction={decorate}},
+  -<-/.style args={at #1 with label #2}{decoration={
+    markings,
+    mark=at position #1 with {\arrow{<}; \node at (0,\LabDis)
+    {#2};}},postaction={decorate}},
+  -*-/.style args={at #1 with label #2}{decoration={
+    markings,
+    mark=at position #1 with {{\fill (0,0) circle (1.5pt);} \node at (0,\LabDis)
+    {#2};}},postaction={decorate}},
+  }
+\maketitle
+
+\begin{abstract}
+    \begin{center}
+        Lecture Notes for the course EE 736 : Stochastic Optimisation taught in Spring 2022 by Prof. Vivek Borkar.
+    \end{center}
+\end{abstract}
+
+\tableofcontents
+\newpage
+\chapter{Stochastic Approximation}
+\input{rm}
+\input{ode}
+\input{conv}
+
+\end{document}
+

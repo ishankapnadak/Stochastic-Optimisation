@@ -1,0 +1,119 @@
+\section{The Robbins-Monro Algorithm}
+
+The basic problem we consider is to solve $h(\mathbf{x}) = 0$ given noisy measurements of $h$. That is, we are given access to a black box that, on input $\mathbf{x} \in \mathbb{R}^d$, gives as output $h(\mathbf{x}) + \text{noise}$. To this end, we have the \textit{Robbins-Monro algorithm}.
+
+\medskip
+
+\textbf{Robbins-Monro Algorithm.} Starting with $\mathbf{x}_0 \in \mathbb{R}^d$, do: 
+\[  
+    \mathbf{x}(n+1) \vcentcolon= \mathbf{x}(n) + a(n) \left[ h(\mathbf{x}(n)) + M(n+1) \right], \quad n \geq 0.
+\]  
+Here, the (non-negative) stepsize sequence (or learning parameter) $\{a(n)\}$ satisfies
+\[
+    \sum_{n} a(n) = \infty \quad \text{and} \quad \sum_{n} a(n)^2 < \infty. 
+\]
+
+A typical example of such a stepsize sequence is $\frac{1}{n}, \frac{1}{n\log n}, \frac{1}{n^{2/3}}$, and so on. Further, we make the following assumptions. 
+
+\begin{enumerate}
+    \item $h \colon \mathbb{R}^d \to \mathbb{R}^d$ is Lipschitz, that is, $\exists L \geq 0$ such that
+    \[
+        \norm{h(\mathbf{x}) - h(\mathbf{y})} \leq L\norm{\mathbf{x} - \mathbf{y}}
+    \]
+    for all $\mathbf{x,y} \in \mathbb{R}^d$. 
+    
+    \item $\{M(n)\}$ is a square integrable martingale difference sequence. That is, for 
+    \[
+        \mathcal{F}_n \vcentcolon= \sigma \left( \mathbf{x}_0, M_m, m \leq n \right), n \geq 0
+    \]
+    we have
+    \[
+        \E \left[ \norm{M(n)}^2 \right] < \infty
+    \]
+    and in addition, we have that it is uncorrelated with the past. That is, 
+    \[
+        \E \left[ M_i(n+1) \mid \mathcal{F}_n \right] = 0 \quad \forall i.
+    \]
+    Furthermore, we assume that for some $K > 0$, 
+    \[
+        \E \left[ \norm{M(n+1)}^2 \mid \mathcal{F}_n \right] \leq K(1 + \norm{\mathbf{x}(n)}^2) \quad \forall n \geq 0.
+    \]
+    In particular, if 
+    \[
+        \sup_n \norm{\mathbf{x}(n)} < \infty \quad \text{a.s.}, 
+    \]
+    then,
+    \[
+        \sup_n \E \left[ \norm{M(n+1)}^2 \mid \mathcal{F}_n \right] < \infty \quad \text{a.s.}.
+    \]
+\end{enumerate}
+
+This algorithm is actually more general than it appears. Suppose the algorithm is 
+\[
+    \mathbf{x}(n+1) \vcentcolon= \mathbf{x}(n) + a(n) f\left( \mathbf{x}(n), \xi(n+1) \right), \quad n \geq 0
+\]
+where $\{\xi(n)\}$ are i.i.d. This is often how most recursive algorithms are stated. The above algorithm can be put into the form of Robbins-Monro algorithm by choosing
+\begin{align*}
+    h(\mathbf{x}) &\vcentcolon= \E \left[ f(\mathbf{x}, \xi(n)) \right] \\
+    &= \E \left[ f(\mathbf{x}(n), \xi(n+1)) \mid \mathbf{x}(n) = \mathbf{x} \right] \\
+    &= \E \left[ f(\mathbf{x}(n), \xi(n+1)) \mid \mathcal{F}_n \right]
+\end{align*}
+and
+\[
+    M(n+1) \vcentcolon= f(\mathbf{x}(n),\xi(n+1)) - h(\mathbf{x}(n)).
+\]
+
+A common example of Robbins-Monro algorithm is stochastic gradient descent, where we set $h = -\nabla f$. Robbins-Monro algorithm also finds uses in many reinforcement learning algorithms. Some advantages of the Robbins-Monro algorithm are listed as follows. 
+
+\begin{enumerate}
+    \item It typically requires a small amount of computation and memory per iterate.
+    \item It is incremental in nature, that is, it makes only a small change in the current iterate at each step.
+    \item The slowly decreasing stepsize $\{a(n)\}$ captures the exploration-exploitation trade-off.
+    \item It averages out the noise, which can be thought of as a generalisation of the Strong Law of Large Numbers.
+\end{enumerate}
+
+Another common approach to solving the same problem is the ODE (Ordinary Differential Equation) approach, which treats the iterate as a noisy discretisation of the ODE 
+\[
+    \dot{\mathbf{x}}(t) = h(\mathbf{x}(t)).
+\]
+Recall the Euler scheme for solving this ODE:
+\[
+    \mathbf{x}(n+1) \vcentcolon= \mathbf{x}(n) + ah(\mathbf{x}(n)), \quad n \geq 0,
+\]
+where $a > 0$ is a small discrete time step. Thus the Robbins-Monro algorithm can be viewed as a Euler scheme to approximate the ODE with slowly decreasing time steps $\{a(n)\}$ and measurement noise. With this in mind, we have the following interpretation of the Robbins-Monro conditions on the step size $\{a(n)\}$. 
+
+\begin{enumerate}
+    \item $\sum_n a(n) = \infty$ ensures that the entire time axis is covered. This is essential because we want to track the asymptotic behaviour of the ODE. 
+    \item $\sum_n a(n)^2 < \infty$ ensures that the approximation of the ODE gets better with time. In particular, $a(n) \to 0$ ensures that errors due to discretisation are asymptotically zero, and $\sum_n a(n)^2 < \infty$ ensures that errors due to the martingale difference noise are asymptotically zero almost surely, since multiplication by $a(n)$ reduces the conditional variance of the noise. 
+\end{enumerate}
+
+As an example, consider an initially empty urn to which one ball, either red or blue, is added at each time step. Let 
+\[
+    \xi(n) \vcentcolon= \I\{n^{\text{th}}\text{ ball is red}\} = \begin{cases}
+        1 & \text{if the $n^{\text{th}}$ ball is red, and} \\
+        0 & \text{otherwise.}
+    \end{cases}
+\]  
+Let $S(n) \vcentcolon= \sum_{m=1}^n \xi(m)$ be the total number of red balls at time $n$, and let $x(n) \vcentcolon= \frac{S(n)}{n}$ be the fraction of red balls at time $n$. Then, we have
+\begin{align*}
+    x(n+1) &= \frac{1}{n+1} \sum_{m=1}^{n+1} \xi(m) \\
+    &= \frac{1}{n+1} \sum_{m=1}^{n} \xi(m) + \frac{\xi(n+1)}{n+1} \\
+    &= \left( \frac{n}{n+1} \right) \frac{\sum_{m=1}^n \xi(m)}{n} + \frac{\xi(n+1)}{n+1} \\
+    &= \left( 1 - \frac{1}{n+1} \right) x(n) + \frac{\xi(n+1)}{n+1} \\
+    &= x(n) + a(n) ( \xi(n+1) - x(n))
+\end{align*}
+for $a(n) \vcentcolon= \frac{1}{n+1}$ which satisfies the Robbins-Monro conditions. Now, suppose that
+\[
+    \P \left( \xi(n+1) = 1 \mid \xi(m), m \leq n \right) = p(x(n))
+\]
+for some continuously differentiable function $p \colon [0,1] \to [0,1]$. Then, we have
+\begin{align*}
+    x(n+1) &= x(n) + a(n) ( \xi(n+1) - x(n)) \\
+    &= x(n) + a(n) \left[ (p(x(n)) - x(n)) + (\xi(n+1) - p(x(n)))\right] \\
+    &= x(n) + a(n) \left[ h(x(n)) + M(n+1) \right]
+\end{align*}
+for $h(x) \vcentcolon= p(x) - x$, and $M(n+1) \vcentcolon= \xi(n+1) - p(x(n))$. Since $\E \left[ \xi(n+1) \mid \xi(m), m \leq n \right] = p(x(n))$ for all $n$, we have that $\{M(n)\}$ is a martingale difference sequence. Since $\abs{M(n)} \leq 2$, the bound on conditional second moment is free. The limiting ODE is
+\[
+    \dot{x}(t) = p(x(t)) - x(t).
+\]
+Under our hypothesis of continuous differentiability of $p$, this has a unique solution for any initial condition. Set $x(0) = x_0 \in [0,1]$. We have $p(0) - 0 \geq 0$, and $p(1) - 1 \leq 0$. Since $x(t) \in [0,1]$ for all $t \geq 0$, $x(t)$ must converge to a point in $[0,1]$. If at $x_0$, we have that $p(x_0) = x_0$, then we are already at equilibrium. If not, suppose that $p(x_0) > x_0$, then $x(t)$ is increasing but bounded by $1$, so it must converge. A similar argument works for $p(x_0) < x_0$. But does an equilibrium exist? The answer is yes. Since $p(0) - 0 \geq 0$, and $p(1) - 1 \leq 0$, we have by continuity that there exists $x \in [0,1]$ such that $p(x) = x$. In fact, there can be more than one equilibria. An equilibrium $x^*$ satisfies $p(x^*) = x^*$ and is stable if $p^{\prime}(x^*) < 1$ and unstable if $p^{\prime}(x^*) > 1$. Under some additional technicalities, we can show that $x(t)$ converges to one of the stable equilibria almost surely, and the probability of convergence to any stable equilibrium is strictly positive. 

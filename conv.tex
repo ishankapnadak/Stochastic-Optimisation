@@ -1,0 +1,16 @@
+\section{Convergence Analysis}
+
+Recall that our iteration is
+\[
+    \mathbf{x}(n+1) \vcentcolon= \mathbf{x}(n) + a(n) \left[ h(\mathbf{x}(n)) + M(n+1) \right], \quad n \geq 0.
+\]
+Since we view $a(n)$ as a discrete time step, we define the \emph{algorithmic time scale} as
+\[
+    t_0 \vcentcolon= 0, \quad t_n \vcentcolon= \sum_{m=0}^{n-1} a(m), \quad n \geq 0.
+\]
+Now, we define $\overline{\mathbf{x}}(t)$, $t \in [0,\infty)$ as follows. 
+\begin{align*}
+    \overline{\mathbf{x}}(t_n) &\vcentcolon= \mathbf{x}(n) \quad \forall n \geq 0 \text{ and} \\
+    \overline{\mathbf{x}}(t) &\vcentcolon= \overline{\mathbf{x}}(t_n) + \left( \frac{t - t_n}{t_{n+1} - t_n} \right) \left( \overline{\mathbf{x}}(t_{n+1}) - \overline{\mathbf{x}}(t_n) \right) \quad \text{for } t \in [t_n, t_{n+1}].
+\end{align*}
+That is, we linearly interpolate on $[t_n, t_{n+1}]$. Then, $\overline{\mathbf{x}}$ is continuous and piecewise linear. 

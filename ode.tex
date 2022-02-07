@@ -1,0 +1,238 @@
+\section{Ordinary Differential Equations}
+
+We consider the ODE in $\mathbb{R}^d$, $d \geq 1$, given by
+\[
+    \dot{\mathbf{x}}(t) = h(\mathbf{x}(t)), \quad \mathbf{x}(0) = \mathbf{x}_0.
+\]
+A problem is said to be \emph{well-posed} if 
+\begin{enumerate}
+    \item it has a solution, 
+    \item the solution is unique, and
+    \item the solution depends continuously on problem parameters. 
+\end{enumerate}
+
+For ODEs, this translates to the ODE having a unique solution for all time that depends continuously on the initial condition.
+
+\medskip
+
+We say that $h \colon \mathbb{R}^d \to \mathbb{R}^d$ satisfies a (global) Lipschitz condition if for some $L > 0$, we have
+\[
+    \norm{h(\mathbf{x}) - h(\mathbf{y})} \leq L \norm{\mathbf{x} - \mathbf{y}} \quad \forall \mathbf{x},\mathbf{y} \in \mathbb{R}^d. 
+\]
+$h$ is locally Lipschitz if for all $R > 0$, there exists an $L_R > 0$ such that
+\[
+    \norm{h(\mathbf{x}) - h(\mathbf{y})} \leq L_R \norm{\mathbf{x} - \mathbf{y}} \quad \forall \mathbf{x},\mathbf{y} \in \mathcal{B}_R \vcentcolon= \left\{ \mathbf{z} \in \mathbb{R}^d \mid \norm{\mathbf{z}} \leq R  \right\}
+\]
+
+\begin{lem}[Gronwall's Inequality]
+    Suppose $0 \leq y \colon [0,T] \colon \mathbb{R}$ is differentiable and satisfies
+    \[
+        y(t) \leq C + K \int_0^t y(s) \, \D s, \quad t \in [0,T]
+    \]
+    for some $C,K > 0$. Then, 
+    \[
+        y(t) \leq Ce^{Kt}, \quad t \in [0,T].
+    \]
+\end{lem}
+
+\begin{proof}
+    Let $z(t) \vcentcolon= \int_0^t y(s) \, \D s$, $t \geq 0$. Then, 
+    \begin{align*}
+        &\dot{z}(t) = y(t) \leq C + Kz(t) \\
+        \implies &e^{-Kt}(\dot{z}(t) - Kz(t)) \leq Ce^{-Kt} \\
+        \implies & \frac{\D}{\D t} \left( e^{-Kt} z(t) \right) \leq Ce^{-Kt}, \, z(0) = 0.
+    \end{align*}
+    Integrating both sides from $0$ to $t$, we get
+    \begin{align*}
+        &e^{-Kt} z(t) \leq \frac{C}{K} (1 - e^{-Kt}) \\
+        \implies &z(t) \leq \frac{C}{K} (e^{Kt} - 1)
+    \end{align*}
+    Now, we have
+    \begin{align*}
+        &y(t) \leq C + Kz(t) \leq C + C(e^{Kt} - 1) \\
+        \implies & y(t) \leq Ce^{Kt}. \qedhere
+    \end{align*}
+\end{proof}
+
+\begin{thm}
+    If $h$ is Lipschitz, then the ODE $\left\{ \dot{\mathbf{x}}(t) = h(\mathbf{x}(t)), \mathbf{x}(0) = \hat{\mathbf{x}} \right\}$ is well-posed. 
+\end{thm}
+\begin{proof}
+    We first show existence. Fix $T \in (0, 1/L)$ and a continuous function $\mathbf{x}_0 \colon [0,T] \to \mathbb{R}^d$ with $\mathbf{x}_0(0) = \hat{\mathbf{x}}$. Recursively define
+    \begin{equation*}
+        \mathbf{x}_{n+1}(t) \vcentcolon= \hat{\mathbf{x}} + \int_0^t h(\mathbf{x}_n(s)) \, \D s, \quad t \in [0,T]. \tag{\(\dagger\)}
+    \end{equation*}
+    These are called \emph{Picard iterations}. Then for $n \geq 1$, we have
+    \begin{align*}
+        \norm{\mathbf{x}_{n+1}(t) - \mathbf{x}_n(t)} &= \norm{\int_0^t \left( h(\mathbf{x}_n(s)) - h(\mathbf{x}_{n-1}(s)) \, \right)\D s} \\
+        &\leq \int_0^t \norm{h(\mathbf{x}_n(s)) - h(\mathbf{x}_{n-1}(s))} \, \D s \\ 
+        &\leq L\int_0^t \norm{\mathbf{x}_n(s) - \mathbf{x}_{n-1}(s)} \, \D s \\
+        &\leq LT \max_{s \in [0,T]} \norm{\mathbf{x}_n(s) - \mathbf{x}_{n-1}(s)}
+    \end{align*}
+    
+    Thus, 
+    \[
+        \max_{t \in [0,T]} \norm{\mathbf{x}_{n+1}(t) - \mathbf{x}_n(t)} \leq LT \max_{t \in [0,T]} \norm{\mathbf{x}_n(t) - \mathbf{x}_{n-1}(t)}
+    \]
+    
+    Applying this repeatedly, we get
+    \begin{align*}
+        \max_{t \in [0,T]} \norm{\mathbf{x}_{n+1}(t) - \mathbf{x}_n(t)} &\leq (LT)^n \max_{t \in [0,T]} \norm{\mathbf{x}_1(t) - \mathbf{x}_0(t)} \text{ for } n \geq 0 \\
+        &\implies \sum_{n=0}^{\infty} \max_{t \in [0,T]}\norm{\mathbf{x}_{n+1}(t) - \mathbf{x}_n(t)} < \infty. 
+    \end{align*}
+    
+    Thus, $\mathbf{x}_n(t) = \mathbf{x}_0(t) + \sum_{m=0}^{n-1} (\mathbf{x}_{m+1}(t) - \mathbf{x}_m(t))$ converges to some $\mathbf{x}(t)$ uniformly in $t \in [0,T]$. Passing to the limit as $n \uparrow \infty$ in $(\dagger)$, we have 
+    \[
+        \mathbf{x}(t) \vcentcolon= \hat{\mathbf{x}} + \int_0^t h(\mathbf{x}(s)) \, \D s, \quad t \in [0,T]
+    \]
+    Thus, $\mathbf{x}$ satisfies the ODE with $\mathbf{x}(0) = \hat{\mathbf{x}}$. We repeat the above procedure for $[T,2T], [2T,3T]$, and so on.
+    
+    \medskip
+    
+    We now prove uniqueness. Consider $\dot{\mathbf{x}}(t) = h(\mathbf{x}(t))$, $\dot{\mathbf{y}}(t) = h(\mathbf{y}(t))$, $t \geq 0$ with $\mathbf{x}(0) = \mathbf{y}(0)$. Then,
+    \[
+        \norm{\mathbf{x}(t) - \mathbf{y}(t)} \leq L \int_0^t \norm{\mathbf{x}(s) - \mathbf{y}(s)} \, \D s \implies \norm{\mathbf{x}(t) - \mathbf{y}(t)} = 0 \quad \forall t \geq 0,
+    \]
+    where the last implication follows from Gronwall's inequality. This concludes uniqueness. In general, for $\mathbf{x}(0) = \hat{\mathbf{x}}$ and $\mathbf{y}(0) = \hat{\mathbf{y}}$, we have 
+    \begin{align*}
+        &\norm{\mathbf{x}(t) - \mathbf{y}(t)} \leq \norm{\hat{\mathbf{x}} - \hat{\mathbf{y}}} + L \int_0^t \norm{\mathbf{x}(s) - \mathbf{y}(s)} \, \D s \\
+        &\implies \norm{\mathbf{x}(t) - \mathbf{y}(t)} \leq e^{Lt} \norm{\hat{\mathbf{x}} - \hat{\mathbf{y}}},
+    \end{align*}
+    by the Gronwall's inequality implying continuous dependence on the initial condition. Hence, the ODE is well-posed.
+\end{proof}
+
+A few remarks:
+
+\begin{enumerate}
+    \item Picard iteration is not a good computational scheme. In practice, Euler scheme is the most basic choice. Suppose $h$ is bounded and let $a \vcentcolon= \frac{T}{N}$ where $N \gg 1$. Now, let
+    \[
+        \mathbf{X}_N((n+1)a) \vcentcolon= \mathbf{X}_N(na) + ah(\mathbf{X}_N(na)), \quad 0 \leq n < N.
+    \]
+    We interpolate linearly to get
+    \[
+        \mathbf{X}_N(t) \vcentcolon= \mathbf{X}_N(na) + (t - na) h(\mathbf{X}_N(na)), \quad t \in [na, (n+1)a].
+    \]
+    Then, as $N \uparrow \infty$, $\mathbf{X}_N(t), t \in [0,T]$ converges to a solution of the ODE uniformly on $[0,T]$. This too proves the existence of a solution and needs only the continuity of $h$. However, uniqueness may fail. In numerical analysis, more sophisticated discretisations are available. 
+    
+    \item A local Lipschitz condition on $h$ gives local well-posedness for a small time interval, but the solution may not exist for all time.
+    
+    \item The linear growth condition shown below suffices for a solution to exist for all time:
+    \[
+        \norm{h(\mathbf{x}} \leq K(1 + \norm{\mathbf{x}})
+    \]  
+    for some $K > 0.$ Then, we have
+    \begin{align*}
+        \norm{\mathbf{x}(t)} &\leq \norm{\mathbf{x}(0)} + \norm{\int_0^t h(\mathbf{x}(s) \, \D s} \leq \norm{\mathbf{x}(0)} + \int_0^t K(1 + \norm{\mathbf{x}(s)}) \, \D s \\
+        &\implies \norm{\mathbf{x}(t)} \leq (\norm{\mathbf{x}(0)} + KT) e^{Kt}, \quad t \in [0,T],
+    \end{align*}
+    by Gronwall's inequality. We further note that the Lipschitz condition implies linear growth. A proof of this is left as an exercise for the reader. 
+    
+    \item A symmetric well-posedness theory can be developed for $t \leq 0$. Thus, for Lipschitz $h$, there is a unique solution for all $t \in \mathbb{R}$.
+    
+    \item We also have a \emph{discrete} Gronwall's inequality, which is proved similarly. Let $x_n \geq 0, a_n \geq 0, n \geq 0$, and $C,K > 0$ such that
+    \[
+        x_{n+1} \leq C + K \sum_{m=0}^n a_mx_m \quad \forall n \geq 0.
+    \]  
+    Then, $x_{n+1} \leq C e^{K \sum_{m=0}^n a_m}$ for all $n \geq 0$.
+\end{enumerate}
+
+We now take a more qualitative look at ODEs. Assume well-posedness. There are two broad ways of thinking about ODEs. 
+
+\begin{enumerate}
+    \item We can think of the ODE as the graph of $t \mapsto \mathbf{x}(t) \in \mathbb{R}^d$, that is, we think of $\mathbf{x}(t)$ as a function of time. The component-wise time derivative at $t$ is $h(\mathbf{x}(t))$. 
+    \item We can think of the ODE as a trajectory, or a curve $\mathbf{x}(\cdot)$ in $\mathbb{R}^d$ with $t$ as a running parameter. This is also called a phase portrait. The tangent at point $\mathbf{x}$ on the curve is $h(\mathbf{x})$. One often flips this picture around and imagines a vector $h(\mathbf{x})$ at each point $\mathbf{x}$ (a vector field) and think of trajectories as curves drawn that are tangent to the vector field at all points (integral curves).
+\end{enumerate}
+
+\begin{defn}[Limit Sets]
+The $\omega$-limit set of a trajectory $\mathbf{x}(\cdot)$ is the set of all points $\mathbf{x}$ such that $\exists \, t_n\\uparrow \infty$ such that $\mathbf{x}(t_n) \to \mathbf{x}$, that is, the set of limit points of $\mathbf{x}(t)$ as $t \uparrow \infty$. One can show that this set is closed but can be empty. The $\alpha$-limit set is defined similarly for $t_n \downarrow -\infty$.
+\end{defn} 
+
+\begin{defn}[Invariance]
+A set $A \subseteq \mathbb{R}^d$ is said to be \emph{positively invariant} if $\mathbf{x}(0) \in A \implies \mathbf{x}(t) \in A \quad \forall t \geq 0$. Negative invariance is defined similarly. A set that is both positively and negatively invariant is said to be \emph{invariant}.
+\end{defn} 
+
+\begin{prop}
+    The $\omega$- and $\alpha$-limit sets are invariant.
+\end{prop}
+
+\begin{defn}[Liapunov Stable]
+    An equilibrium $\mathbf{x}^*$ is said to be \emph{Liapunov stable} if given $\epsilon > 0$, there exists a $\delta > 0$ such that
+    \[
+        \norm{\mathbf{x}(0) - \mathbf{x}^*} < \delta \implies \norm{\mathbf{x}(t) - \mathbf{x}^*} < \delta \quad \forall t \geq 0.
+    \]
+\end{defn}
+\begin{defn}[Asymptotically Stable]
+    An equilibrium $\mathbf{x}^*$ is said to be \emph{asymptotically stable} if it is Liapunov stable and there exists an open neighbourhood $\mathcal{O}$ of $\mathbf{x}^*$ such that 
+    \[
+        \mathbf{x}(0) \in \mathcal{O} \implies \mathbf{x}(t) \to \mathbf{x}^*.
+    \]
+\end{defn}
+\begin{defn}[Domain of Attraction]
+    The largest positively invariant open set $\mathcal{D}$ such that 
+    \[
+        \mathbf{x}(0) \in \mathcal{D} \implies \mathbf{x}(t) \to \mathbf{x}^*
+    \]
+    is called the \emph{domain of attraction} of $\mathbf{x}^*$. 
+\end{defn}
+
+One sufficient condition for the above is that there exist a continuously differentiable $V \colon \mathcal{D} \to [0,\infty)$ such that
+\[
+    \lim_{\mathbf{x} \to \partial \mathcal{D}} V(\mathbf{x}) = \infty, \text{ and}
+\]
+\[
+    \left\langle \nabla V(\mathbf{x}), h(\mathbf{x})\right\rangle < 0 \quad \forall \mathbf{x} \in \mathcal{D}, \mathbf{x} \neq \mathbf{x}^*.
+\]
+Thus, we have
+\[
+    \frac{\D}{\D t}V(\mathbf{x}(t)) = \left\langle \nabla V(\mathbf{x}(t)), h(\mathbf{x}(t))\right\rangle < 0 \quad \text{when }\mathbf{x}(t) \neq \mathbf{x}^*,
+\]
+that is, $V$ decreases along the trajectory. Since $V \geq 0$, $\mathbf{x}(t) \to \mathbf{x}^*$. Further, if we consider $\mathcal{B}_c(\mathbf{x}^*) \vcentcolon= \{ \mathbf{x} \mid V(\mathbf{x}) \leq c \} \subseteq \mathcal{D}$ for a suitable $c > V(\mathbf{x}^*$, then 
+\[
+    \mathbf{x}(0) \in \mathcal{B}_c(\mathbf{x}^*) \implies \mathbf{x}(t) \in \mathcal{B}_c(\mathbf{x}^*) \quad \forall t \geq 0.
+\]
+Note that $\mathbf{x}^* \in \mathcal{B}_c(\mathbf{x}^*)$ and $\mathcal{B}_c(\mathbf{x}^*)$ shrinks to $\{\mathbf{x}^*\}$ as $c \downarrow 0$. In particular, any $\epsilon$-neighbourhood of $\mathbf{x}^*$ contains $\mathcal{B}_c(\mathbf{x}^*)$ for sufficiently small $c$. Thus, $\mathbf{x}^*$ is Liapunov stable and hence asymptotically stable. In this case, $V$ is called a \emph{Liapunov function}. Conversely, if $\mathbf{x}^*$ is asymptotically stable, then such a $V$ exists and can be taken to satisfy $V(\mathbf{x}) \to \infty$ as $\mathbf{x} \to \partial \mathcal{D}$.
+
+More generally, we have the \emph{LaSalle Invariance Prinsciple} which states that $\mathbf{x}(t)$ converges to the largest invariant set contained in $\mathcal{A} \vcentcolon= \{\mathbf{x} \mid \left\langle V(\mathbf{x}, h(\mathbf{x}) \right\rangle = 0 \}.$
+
+If there exists some continuously differentiable $V \colon \mathcal{D} \to [0,\infty)$ such that
+\[
+    \lim_{\mathbf{x} \to \partial \mathcal{D}} V(\mathbf{x}) = \infty, \text{ and}
+\]
+\[
+    \left\langle \nabla V(\mathbf{x}), h(\mathbf{x})\right\rangle < 0 \quad \forall \mathbf{x} \notin \mathcal{C}
+\]
+for some bounded set $\mathcal{C}$, then
+\begin{align*}
+    &\frac{\D}{\D t}V(\mathbf{x}(t)) = \left\langle \nabla V(\mathbf{x}(t)), h(\mathbf{x}(t))\right\rangle < 0 \quad \text{when }\mathbf{x}(t) \notin \mathcal{C}, \\
+    &\implies \mathbf{x}(t) \to \mathcal{C}.
+\end{align*}
+In particular, the trajectories remain bounded. 
+
+\medskip
+
+We now consider the linear system $\dot{\mathbf{x}}(t) = \mathbf{Ax}(t)$ for some $\mathbf{A} \in \mathbb{R}^{d \times d}$. Then the origin, $\mathbf{0}$, is an equilibrium. If $\mathbf{A}$ is non-singular, it is the only equilibrium. It is asymptotically stable if all eigenvalues of $\mathbf{A}$ are in the left half plane. If not, suppose there are no eigenvalues on the imaginary axis. Suppose there are $m < d$ eigenvalues in the left half plane. We can write $\mathbb{R}^d = \mathcal{S} \oplus \mathcal{U}$ where $\mathcal{S}$ is the $m$-dimensional stable subspace corresponding to the eigenvectors of eigenvalues in the left half plane, and $\mathcal{U}$ is the $(d-m)$-dimensional stable subspace corresponding to the eigenvectors of eigenvalues in the right half plane. Then, $\mathbf{x}(0) \in \mathcal{S} \implies \mathbf{x}(t) \to \mathbf{0}$ and $\mathbf{x}(0) \in \mathcal{U}$ implies that $\mathbf{x}(t)$ moves away from $\mathbf{0}$. More importantly, if $\mathbf{x}(0) \notin \mathcal{S}$, $\mathbf{x}(t)$ eventually moves away from $\mathbf{0}$. That is,
+\[
+    \mathbf{x}(t) \to \mathbf{0} \iff \mathbf{x}(0) \in \mathcal{S}.
+\]  
+However, $\mathcal{S}$ has zero volume in $\mathbb{R}^d$, and thus, for a typical initial condition, $\mathbf{x}(t)$ eventually moves away from $\mathbf{0}$. The above arguments extend to any point $\mathbf{x}^* \in\mathbb{R}^d$ if we replace the linear ODE by the following affine ODE:
+\[
+    \dot{\mathbf{x}}(t) = \mathbf{A}\left( \mathbf{x}(t) - \mathbf{x}^* \right).
+\]
+
+\medskip
+
+We now extend these ideas to the non-linear case. Suppose $h$ is continuously differentiable and let $Dh(\mathbf{x})$ denote its Jacobian matrix at $\mathbf{x}$, that is, the $(i,j)$ entry of of $Dh(\mathbf{x})$ is $\frac{\partial h_i}{\partial x_j}(\mathbf{x})$. By Taylor formula, for $\mathbf{x} \approx \mathbf{x}^*$, we have
+\[
+    h(\mathbf{x}) \approx h(\mathbf{x}^*) + Dh(\mathbf{x}^*)(\mathbf{x} - \mathbf{x}^*) = Dh(\mathbf{x}^*)(\mathbf{x} - \mathbf{x}^*).
+\]
+We now consider the affine ODE
+\[
+    \dot{\mathbf{z}}(t) = Dh(\mathbf{x}^*) \left( \mathbf{z}(t) - \mathbf{x}^* \right)
+\]  
+which is called the \emph{linearisation} of the original ODE at $\mathbf{x}^*$.
+
+
+\begin{thm}[Hartman-Gro{\ss}man Theorem]
+    Let $\mathbf{x}^*$ be a \emph{hyperbolic} equilibrium, that is, $Dh(\mathbf{x}^*)$ has no eigenvalues on the imaginary axis. Then, there exist open neighbourhoods $\mathcal{O}_1, \mathcal{O}_2$ of $\mathbf{x}^*$ such that the phase portrait of the original ODE in $\mathcal{O}_1$ and its linearisation in $\mathcal{O}_2$ can be mapped to each other by a continuous and continuously invertible transformation.
+\end{thm}
+Thus, `stable subspaces' morph into `stable manifolds' and `unstable subspaces' morph into `unstable manifolds'.
