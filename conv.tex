@@ -13,4 +13,122 @@ Now, we define $\overline{\mathbf{x}}(t)$, $t \in [0,\infty)$ as follows.
     \overline{\mathbf{x}}(t_n) &\vcentcolon= \mathbf{x}(n) \quad \forall n \geq 0 \text{ and} \\
     \overline{\mathbf{x}}(t) &\vcentcolon= \overline{\mathbf{x}}(t_n) + \left( \frac{t - t_n}{t_{n+1} - t_n} \right) \left( \overline{\mathbf{x}}(t_{n+1}) - \overline{\mathbf{x}}(t_n) \right) \quad \text{for } t \in [t_n, t_{n+1}].
 \end{align*}
-That is, we linearly interpolate on $[t_n, t_{n+1}]$. Then, $\overline{\mathbf{x}}$ is continuous and piecewise linear. 
+That is, we linearly interpolate on $[t_n, t_{n+1}]$. Then, $\overline{\mathbf{x}}$ is continuous and piecewise linear. We assume stability, that is,
+\[
+    \sup_{n \geq 0} \norm{\mathbf{x}(n)} < \infty \quad \text{a.s.}
+\]
+Fix $T > 0$. We shall compare $\overline{\mathbf{x}}(\cdot)$ on a sliding window $[t,t+T]$ as $t \uparrow \infty$, with the ODE trajectory on the same interval that matches with it at the beginning of the interval, that is, with $\mathbf{x}^t(s)$, $s \in [t,t+T]$, satisfying
+\[
+    \dot{\mathbf{x}}^t(s) = h(\mathbf{x}(s)), \, s \in [t,t+T], \, \mathbf{x}^t(t) = \overline{\mathbf{x}}(t).
+\]
+It suffices to consider $t = t_n$ for some $n \geq 0$ since for the general case there is a negligible additional error which can be easily handled. 
+
+Let $m(n) \vcentcolon= \min \left\{ k \geq n \colon t_k \geq t_n + T \right\}$. Then, $t_{m(n)} \approx t_n + T$. We shall compare $\overline{\mathbf{x}}(\cdot)$ and $\mathbf{x}^{t_n}(\cdot)$ on the interval $[t_n, t_{m(n)}]$. Now, define
+\[
+    \zeta(n) \vcentcolon= \sum_{m=0}^{n-1} a(m) M(m+1), \quad n \geq 1.
+\]
+This is a martingale, that is, $\E[\zeta(n+1) \mid \mathcal{F}_n] = \zeta(n)$ for all $n$. Also, 
+\begin{align*}
+    \sum_n \E \left[ \norm{\zeta(n+1) - \zeta(n)}^2 \mid \mathcal{F}_n \right] &= \sum_n a(n)^2 \E \left[ \norm{M(n+1)}^2 \mid \mathcal{F}_n \right] \\
+    &\leq \sum_n a(n)^2 K (1 + \norm{\mathbf{x}(n)}^2) \\
+    &\leq K (1 + \sup_n\norm{\mathbf{x}(n)}^2) \cdot \sum_m a(m)^2 \\
+    &< \infty \quad \text{a.s.}
+\end{align*}
+By the convergence theorem for square integrable martingales, $\zeta(n)$ converges almost surely as $n \uparrow \infty$. We now define this convergence theorem more formally. 
+
+\begin{thm}
+Let $(Z_n, \mathcal{F}_n)$ be a square-integrable martingale. Its \emph{quadratic variation process} $\langle Z \rangle_n$, $n \geq 0$ is given by
+\[
+    \langle Z \rangle_n \vcentcolon= \sum_{m=0}^n \E \left[ (Z_{m+1} - Z_m)^2 \mid \mathcal{F}_n \right].
+\]
+Then, almost surely,
+\[
+    \lim_{n \uparrow \infty} \langle Z \rangle_n < \infty \implies \langle Z \rangle_n \text{ converges}.
+\]
+\end{thm}
+
+Now, let $0 \leq k \leq m(n) - n$. Then,
+\begin{align*}
+    \overline{\mathbf{x}}(t_{n+k}) &= \overline{\mathbf{x}}(t_n) + \sum_{i=0}^{k-1} a(n+i) h(\overline{\mathbf{x}}(t_{n+i})) + \sum_{l=0}^{k-1} a(n+l) M(n+l+1) \\
+    &= \overline{\mathbf{x}}(t_n) + \sum_{i=0}^{k-1} a(n+i) h(\overline{\mathbf{x}}(t_{n+i})) + \zeta(n+k) - \zeta(n).
+\end{align*}
+Further, we have
+\begin{align*}
+    \mathbf{x}^{t_n}(t_{n+k}) &= \mathbf{x}^{t_n}(t_n) + \int_{t_n}^{t_{n+k}} \, h(\mathbf{x}^{t_n}(s)) \, \D s \\
+    &= \mathbf{x}^{t_n}(t_n) + \sum_{i=0}^{k-1} a(n+i) \cdot h(\mathbf{x}^{t_n}(t_{n+i})) + \sum_{l=n}^{n+k-1} \int_{t_l}^{t_{l+1}} \, \left( h(\mathbf{x}^{t_n}(s)) -  h(\mathbf{x}^{t_n}(t_l)) \right) \, \D s
+\end{align*}
+because for $l \geq n$, we have
+\[
+    a(l) h(\mathbf{x}^{t_n}(t_l)) = \int_{t_l}^{t_{l+1}} \, h(\mathbf{x}^{t_n}(t_l)) \, \D s.
+\]
+Thus, 
+\[
+    \mathbf{x}^{t_n}(t_{n+k}) = \mathbf{x}^{t_n}(t_n) + \sum_{i=0}^{k-1} a(n+i) \cdot h(\mathbf{x}^{t_n}(t_{n+i})) +  \int_{t_n}^{t_{n+k}} \, \left( h(\mathbf{x}^{t_n}(s)) -  h(\mathbf{x}^{t_n}([t])) \right) \, \D s
+\]
+where $[t] \vcentcolon= \max \left\{ t_m \colon t_m \leq t \right\}$. Note that $\overline{\mathbf{x}}(t_n) = \mathbf{x}^{t_n}(t_n) = \mathbf{x}(n)$. Thus, we have
+\[
+    \norm{\overline{\mathbf{x}}(t_{n+k}) - \mathbf{x}^{t_n}(t_{n+k})} \leq 
+     \sum_{i=0}^{k-1} a(n+i) \norm{h(\overline{\mathbf{x}}(t_{n+i})) - h(\mathbf{x}^{t_n}(t_{n+i}))} + \mathcal{I}_d + \mathcal{I}_n
+\]
+where $\mathcal{I}_d$ denotes the error due to discretisation and $\mathcal{I}_n$ denotes the error due to noise. 
+\[
+    \norm{\overline{\mathbf{x}}(t_{n+k}) - \mathbf{x}^{t_n}(t_{n+k})} \leq 
+     L\sum_{i=0}^{k-1} a(n+i) \norm{\overline{\mathbf{x}}(t_{n+i}) - \mathbf{x}^{t_n}(t_{n+i})} + \mathcal{I}_d + \mathcal{I}_n
+\]
+By the discrete Gronwall inequality, there exists $C(T) > 0$ such that 
+\[
+    \sup_{n\, \leq\, m \leq m(n)} \norm{\overline{\mathbf{x}}(t_m) - \mathbf{x}^{t_n}(t_m)} \leq C(T)(\mathcal{I}_d + \mathcal{I}_n)
+\]
+For $\infty > K \geq \sup_{t \in [t_n, t_{m(n)}]} \norm{h(\mathbf{x}^{t_n}(t))} > 0$, we have
+\begin{align*}
+    \norm{\int_{t_m}^{t_{m+1}} \left( h(\mathbf{x}^{t_n}(s)) - h(\mathbf{x}^{t_n}([t])) \right) \, \D s} &= \norm{\int_{t_m}^{t_{m+1}} \left( h(\mathbf{x}^{t_n}(s)) - h(\mathbf{x}^{t_n}(t_m)) \right) \, \D s} \\
+    &\leq L \int_{t_m}^{t_{m+1}} \norm{ \mathbf{x}^{t_n}(s) - \mathbf{x}^{t_n}(t_m) } \, \D s \\
+    &\leq L \int_{t_m}^{t_{m+1}} \norm{ \int_{t_m}^s h(\mathbf{x}^{t_n}(u)) \, \D u } \, \D s  \\
+    &\leq \frac{LK}{2} (t_{m+1} - t_m)^2 \\
+    &= L^{\prime} a(m)^2.
+\end{align*}
+
+Hence, 
+\[
+    \mathcal{I}_d = \norm{\int_{t_m}^{t_{m+1}} \left( h(\mathbf{x}^{t_n}(s)) - \overline{h}(\mathbf{x}^{t_n}([t])) \right) \, \D s} 
+    \leq L^{\prime} \sum_{m \geq n} a(m)^2 \downarrow 0 \text{ as } n \uparrow \infty.
+\]
+Also, 
+\[
+    \mathcal{I}_n \leq \sup_{m \geq 0} \norm{\zeta(n+m) - \zeta(n)} \to 0 \text{ a.s. as } n \uparrow \infty.
+\]
+Thus, as $n \uparrow \infty$, 
+\begin{align*}
+    &\max_{n\, \leq\, m \leq m(n)} \norm{\overline{\mathbf{x}}(t_m) - \mathbf{x}^{t_n}(t_m)} \to 0 \text{ a.s.} \implies \\
+    &\lim_{t \uparrow \infty} \max_{s \in [0,T]} \norm{\overline{\mathbf{x}}(t+s) - \mathbf{x}^{t_n}(t+s)} \to 0 \text{ a.s.} \quad \forall T > 0.
+\end{align*}
+Now, let
+\begin{align*}
+    \mathcal{D} \vcentcolon&= \left\{ \mathbf{x} \in \mathbb{R}^d \mid \exists \, 0 < s_n \uparrow \infty \text{ such that } \overline{\mathbf{x}}(s_n) \to \mathbf{x} \right\} \\
+    &=\left\{ \mathbf{x} \in \mathbb{R}^d \mid \exists \, 0 < t_k \uparrow \infty \text{ such that } \overline{\mathbf{x}}(t_k) \to \mathbf{x} \right\}
+\end{align*}
+
+\begin{prop}
+    $\mathcal{D}$ is an invariant set for the ODE.
+\end{prop}
+\begin{proof}
+    Suppose $s_n \uparrow \infty$ and $\overline{\mathbf{x}}(s_n) \to \mathbf{x}$. Then, $\mathbf{x} \in \mathcal{D}$. Let $\dot{\Tilde{\mathbf{x}}}(t) = h(\Tilde{\mathbf{x}}(t))$, $\Tilde{\mathbf{x}}(0) = \mathbf{x}$. By the above, for $T > 0$, we have
+    \[
+        \overline{\mathbf{x}}(s_n + T) - \mathbf{x}^{s_n}(s_n + T) \to 0.
+    \]
+    By continuous dependence on initial condition, 
+    \[
+        \mathbf{x}^{s_n}(s_n)  = \overline{\mathbf{x}}(s_n) \to \mathbf{x} \implies \mathbf{x}^{s_n}(s_n + T) - \Tilde{\mathbf{x}}(T) \to 0.
+    \]
+    Thus, 
+        $\mathbf{x}^{s_n}(s_n + T)- \Tilde{\mathbf{x}}(T) \to 0$,
+    implying $\Tilde{\mathbf{x}}(T) \in \mathcal{D}$. Similar argument works for $T < 0$. Hence, $\mathcal{D}$ is invariant.
+\end{proof}
+
+\begin{defn}[Internally Chain Transitive]
+    We say that $\mathcal{D}$ is an \emph{internally chain transitive} invariant set if given any $\epsilon, T > 0$ and points $\mathbf{x,y} \in \mathcal{D}$, we can find $n \geq 1$, and a chain of points $\mathbf{x} = \mathbf{x}_0, \ldots , \mathbf{x}_n = \mathbf{y}$ such that for $0 \leq i < n$, there exists a trajectory segment of the ODE of duration at least $T$ which starts in the $\epsilon$-neighbourhood of $\mathbf{x}_i$ and ends in the $\epsilon$-neighbourhood of $\mathbf{x}_{i+1}$. 
+\end{defn}
+
+\begin{thm}[Benaim's Theorem]
+    $\mathbf{x}(n)$ converges to an internally chain transitive invariant set of the ODE (a.s.).
+\end{thm}
