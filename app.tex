@@ -1,0 +1,21 @@
+\section{Applications}
+
+\subsection{Stochastic Gradient Descent}
+
+Here we consider $h(\mathbf{x}) = -\nabla f(\mathbf{x})$, and we track the ODE
+\[
+    \dot{\mathbf{x}}(t) = -\nabla f(\mathbf{x}(t)).
+\]
+With `rich noise', we have almost sure convergence to a local minimum if equilibria are isolated. (In general, pointwise convergence is not obvious but it holds for real analytic $f$). But, any isolated local minimum is a possible equilibrium with positive probability. This iterative scheme can slow down near saddle points. In this case, we can use momentum to accelerate the algorithm. That is, we use the iteration
+\[
+    \mathbf{x}_{n+1} = \mathbf{x}_n + \underbrace{a(n) \left[ -\nabla f(\mathbf{x}_n) + M_{n+1} \right]}_{\text{stochastic gradient term}} + \underbrace{b(n) \left[ \mathbf{x}_n - \mathbf{x}_{n-1} \right]}_{\text{momentum term}}.
+\]
+We may rewrite this as
+\begin{align*}
+    \mathbf{x}_{n+1} &= \mathbf{x}_n + \mathbf{y}_n \\
+    \mathbf{y}_{n+1} &= \mathbf{y}_n - (1-b(n))\mathbf{y}_n + a(n) \left[ -\nabla f(\mathbf{x}_n) + M_{n+1} \right].
+\end{align*}
+This is reminiscent of the second order ODE
+\[
+    \dot{\mathbf{x}}(t) = \mathbf{y}(t), \quad \dot{\mathbf{y}}(t) = -\alpha \mathbf{y}(t) - \nabla f(\mathbf{x}(t)).
+\]

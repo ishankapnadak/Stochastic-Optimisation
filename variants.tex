@@ -1,0 +1,161 @@
+\section{Variants of the Robbins-Monro Algorithm}
+
+We mention several useful variations of the Robbins-Monro algorithm as well as several of its applications. For this section, we forego long proofs and only highlight some important results. 
+
+\subsection{Two Time Scale Algorithm I}
+
+Here, we consider the coupled iterations
+\begin{align*}
+    \mathbf{x}_{n+1} &= \mathbf{x}_n + a(n) \left[ h(\mathbf{x}_n,\mathbf{y}_n) + M(n+1) \right] \\
+    \mathbf{y}_{n+1} &= \mathbf{y}_n + b(n) \left[ g(\mathbf{x}_n,\mathbf{y}_n) + M^{\prime}(n+1) \right]
+\end{align*}
+with the modified Robbins-Monro conditions
+\[
+    \sum_{n} a(n) = \sum_n b(n) = \infty, \quad \sum_n (a(n)^2 + b(n)^2) < \infty, \quad  \quad \frac{b(n)}{a(n)} \to 0.
+\]
+Note that $\frac{b(n)}{a(n)} \to 0$ implies that $\{\mathbf{y}_n\}$ is updated on a slower timescale than $\{\mathbf{x}_n\}$. We may however, consider an `algorithmic time scale' in terms of $\{a(n)\}$ and then rewrite the second iteration as
+\[
+    \mathbf{y}_{n+1} = \mathbf{y}_n + a(n) \left( \frac{b(n)}{a(n)} \right) \cdot \left[ g(\mathbf{x}_n,\mathbf{y}_n) + M^{\prime}(n+1) \right].
+\]
+The limiting ODE for this is
+\[
+    \dot{\mathbf{x}}(t) = h(\mathbf{x}(t), \mathbf{y}(t)), \quad \dot{\mathbf{y}}(t) = 0,
+\]
+that is, $\{\mathbf{x}_n\}$ sees $\{\mathbf{y}_n\}$ as quasi-static, or nearly constant. Thus, it tracks the ODE
+\[
+    \dot{\mathbf{x}}(t) = h(\mathbf{x}(t),\mathbf{y}),
+\]
+for $\mathbf{y} \approx \mathbf{y}_n$. Suppose $\mathbf{x}(t) \to \lambda(\mathbf{y})$. Then, $\mathbf{x}_n - \lambda(\mathbf{y}_n) \to \mathbf{0}$ almost surely, that is, $\{\mathbf{y}_n\}$ sees $\{\mathbf{x}_n\}$ as quasi-equilibrated. 
+
+We now rewrite the for $\{\mathbf{y}_n\}$ as 
+\[
+    \mathbf{y}_{n+1} = \mathbf{y}_n + b(n) \left[ g(\lambda(\mathbf{y}_n), \mathbf{y}_n) + \left(g(\mathbf{x}_n, \mathbf{y}_n) - g(\lambda(\mathbf{y}_n), \mathbf{y}_n) \right) + M^{\prime}(n+1) \right]
+\]
+Using the algorithmic time scale defined in terms of $\{b(n)\}$, we see that $\{\mathbf{y}_n\}$ tracks the ODE
+\[
+    \dot{\mathbf{y}}(t) = g\left( \lambda(\mathbf{y}(t)), \mathbf{y}(t) \right).
+\]
+If $\mathbf{y}(t) \to \mathbf{y}^*$, then $(\mathbf{x}_n,\mathbf{y}_n) \to (\lambda(\mathbf{y}^*), \mathbf{y}^*)$. This is very similar to \emph{singularly perturbed differential equations}:
+\begin{align*}
+    \dot{\mathbf{x}}(t) &= h(\mathbf{x}(t), \mathbf{y}(t)) \\
+    \dot{\mathbf{y}}(t) &= \epsilon\cdot g(\mathbf{x}(t), \mathbf{y}(t)) 
+\end{align*}
+in the $\epsilon \downarrow 0$ limit. This scheme also emulates nested iterations. This is extremely for many reinforcement learning algorithms such as actor-critic methods, as well as policy gradient method. 
+
+\subsection{Two Time Scale Algorithm II}
+
+Here, we consider the Robbins-Monro algorithm in the presence of Markov noise $\{Y_n\}$. We consider the iteration
+\[
+    \mathbf{x}_{n+1} = \mathbf{x}_n + a(n) \left[ h(\mathbf{x}_n, Y_n) + M(n+1) \right],
+\]
+where 
+\[
+    \P \left( Y_{n+1} \in A \mid \mathcal{F}_n \right) = p_{\mathbf{x}_n} (A \mid Y_n). 
+\]
+Let $p_{\mathbf{x}}(\cdot\mid\cdot)$ be irreducible with unique stationary distribution $\pi_{\mathbf{x}}$. Then, $\{\mathbf{x}_n\}$ tracks the ODE
+\[
+    \dot{\mathbf{x}}(t) = \int h(\mathbf{x}(t), y) \cdot \pi_{\mathbf{x}(t)}(\D y).
+\]
+The above notation just means that we are taking an expectation over $y$. Intuitively, $\{\mathbf{x}_n\}$ is updated on a slow time scale. Similar to the previous algorithm, the slower time scale iterate tracks the asymptotic behaviour of the faster time scale iterate. Here, however, the faster process is a Markov chain, and does not converge. What we have instead, is that it converges to a stationary distribution, and the resulting ODE tracks just the expected value of $h(\mathbf{x}(t),y)$ with respect to the stationary distribution of $y$. As before, $\{\mathbf{x}_n\}$ sees $\{Y_n\}$ as quasi-equilibrated. Here, however, quasi-equilibrated does not mean that $\{Y_n\}$ converges to a definite value. Rather, $\{Y_n\}$ equilibrates at some particular stationary distribution. 
+
+\subsection{Two Time Scale Algorithm III}
+
+This algorithm was proposed by Tstitsiklis-Bertsekas-Athans, and deals with distributed optimisation. This is also called a gossip algorithm. Here, processor $i$ performs the vector iteration
+\[
+    \mathbf{x}^i_{n+1} = \sum_j p(j \mid i) \cdot\mathbf{x}^j_n + a(n) \left[ h^i(\mathbf{x}^i_n) + M^i(n+1) \right]
+\]
+where $P \vcentcolon= [[ p(\cdot\mid\cdot)]]$ is an irreducible stochastic matrix with stationary distribution $\pi$. An important case is when $P$ is doubly stochastic matrix, where we have $\pi$ being uniform. For any arbitrary stochastic matrix, we may convert it to a doubly stochastic matrix by applying the \emph{Sinkhorn-Knopp algorithm} that alternatively normalises rows and columns until convergence. Intuitively, each processor takes a weighted average of information from all other processors to update its current iterate. This scheme tracks the ODE
+\[
+    \dot{\mathbf{x}}^i(t) = \sum_j \pi(j) \cdot h^j(\mathbf{x}(t)).
+\]
+Also, we have $\norm{\mathbf{x}^i_n - \mathbf{x}^j_n} \to 0$ almost surely. Thus, we have convergence to a common limit. That is, all the processors do exactly the same thing asymptotically. 
+
+\subsection{Stability Test}
+
+Suppose that $h_{\infty}(\mathbf{x}) \vcentcolon= \lim_{c \uparrow \infty} \dfrac{h(c\mathbf{x})}{c}$ exists and the ODE
+\[
+    \dot{\mathbf{x}}(t) = h(\mathbf{x}(t))
+\]
+has the origin as its unique globally asymptotically stable equilibrium. Then, $\sup_n \norm{\mathbf{x}_n} < \infty$ almost surely. There are other tests possible as well. The intuition is that if $\norm{\mathbf{x}_{n_k}} \uparrow \infty$, then the rescaled interpolations on $[t_{n_k}, t_{m(n_k)}]$ given by
+\[
+    \Check{\mathbf{x}}(t) \vcentcolon= \frac{\overline{\mathbf{x}}(t)}{\norm{\overline{\mathbf{x}}(t_{n_k})}}, \quad t \in [t_{n_k}, t_{m(n_k)}],
+\]
+track the ODE $\dot{\mathbf{x}}(t) = h(\mathbf{x}(t))$ and hence tend to the origin. Since $\overline{\mathbf{x}}(\cdot)$ and $\Check{\mathbf{x}}(\cdot)$ differ only by a scale factor, the same holds true for $\overline{\mathbf{x}}(\cdot)$. Hence, the iterates cannot blow up. 
+
+\subsection{Constant Stepsize Algorithm}
+
+Here, we consider the constant stepsize $a(n) \equiv a$ for all $n \geq 0$. Here we have weaker claims. We have `high probability concentration' rather than `almost sure convergence'. We have
+\[
+    \limsup_{n \uparrow \infty} \E \left[ \norm{\mathbf{x}_n - \mathbf{x}^*}^2 \right] \leq Ka
+\]
+This algorithm is particular useful for slowly varying environments. For decreasing stepsize, the algorithmic time scale eventually becomes slower than the environment and therefore cannot track it. This is also useful when the algorithm is hardwired. 
+
+\subsection{Distributed and Asynchronous Iterates}
+
+Here, we consider the iteration
+\[
+    \mathbf{x}_{n+1}(i) = \mathbf{x}_n(i) + a(n)\cdot \I\{i \in S_n\} \left[ h_i\left( \mathbf{x}_{n -\tau_{1i}(n)}(1), \ldots, \mathbf{x}_{n -\tau_{di}(n)}(d) \right) + M_{n+1}(i) \right]
+\]
+The argument of the iterate denotes its component as well as its processor. Here $S_n \subseteq \{1,\ldots,d\}$ is the set of indices of the components updated at time $n$. $\tau_{ji}(n) \vcentcolon= n - $ the time stamp of the most recent value received by $i$ from $j$. For bounded delays (or with a conditional moment bound), the delays do not matter asymptotically as the time scale ($n \to t(n) \vcentcolon= \sum_{m=0}^n a(m)$) is getting shrunk. 
+
+This scheme tracks the ODE
+\[
+    \dot{\mathbf{x}}(t) = \Lambda(t) h(\mathbf{x}(t)),
+\]
+where $\Lambda(t)$ is a diagonal matrix with non-negative diagonal entries $\lambda_i(t)$ reflecting relative frequencies of updates of different components. For example, in the TD($\lambda$) algorithm, we update just one component at a time. This is neatly represented with $S_n = \{X_n\}$ where $\{X_n\}$ is an ergodic Markov chain on $\{1,\ldots,d\}$ with stationary distribution $\pi$. The $i^{\text{th}}$ diagonal entry is simply $\pi(i)$. 
+
+Now, we replace $a(n)$ by $a(\nu(i,n))$ where
+\[
+    \nu(i,n) \vcentcolon= \sum_{m=0}^n\, \I\{i \in S_m\}
+\]
+denotes the `local clock' that counts the number of times component $i$ is updated till time $n$. Then, under some further conditions on $\{a(n)\}$, we have that $\Lambda(t) = \alpha(t) I$ asymptotically. For example, the algorithmic time scale for components $i$ and $j$ are
+\[
+    \sum_{m=0}^n a(\nu(i,m)) \quad \text{and} \quad \sum_{m=0}^n a(\nu(j,m)) \quad \text{respectively.}
+\]
+For $a(n) = \frac{1}{n+1}$, we have $\sum_{m=0}^n \frac{1}{m+1} \approx \log n$. Hence, if 
+\[
+    \liminf_{n \uparrow \infty} \frac{\nu(i,n)}{n} > 0 \quad \text{a.s.},
+\]
+then we have
+\begin{align*}
+    \lim_{n \uparrow \infty} \frac{\sum_{m=0}^n a(\nu(i,m))}{\sum_{m=0}^n a(\nu(j,m))} &= \lim_{n \uparrow \infty} \frac{\log \nu(i,n)}{\log \nu(j,n)} \\
+    &= \lim_{n \uparrow \infty} \frac{\log \frac{\nu(i,n)}{n} + \log n}{\log \frac{\nu(j,n)}{n} + \log n} \\
+    &= 1.
+\end{align*}
+For some special algorithms (such as stochastic gradient descent, $\norm{\cdot}_{\infty}$-contractions), we have that
+\[
+    \liminf_{n \uparrow \infty} \frac{\nu(i,n)}{n} > 0 \quad \text{a.s.} \left( \implies \liminf \lambda_i(t) > 0 \quad \text{a.s.} \right)
+\]
+ensures correct convergence. 
+
+\subsection{Stochastic Recursive Inclusions}
+
+Here we consider the iteration
+\[
+    \mathbf{x}_{n+1} = \mathbf{x}_n + a(n) \left[ \mathbf{y}_n + M_{n+1} \right]
+\]
+where $\mathbf{y}_n \in F(\mathbf{x}_n)$ for some \textbf{Marchaud} map 
+\[
+    \mathbf{x} \in \mathbb{R}^d \mapsto F(\mathbf{x}) \subset \mathbb{R}^d,
+\]  
+that is, which satisfies
+\begin{enumerate}
+    \item $\forall \, \mathbf{x}$, $F(\mathbf{x})$ is closed, bounded, and convex. 
+    \item $F$ has a closed graph, that is, the set $\left\{ (\mathbf{x},\mathbf{y}) \mid\mathbf{y} \in F(\mathbf{x}) \right\}$ is closed. Equivalently, 
+    \[
+        (\mathbf{x}_n, \mathbf{y}_n) \to (\mathbf{x},\mathbf{y}), \, \mathbf{y}_n \in F(\mathbf{x}_n) \forall \, n \implies \mathbf{y} \in F(\mathbf{x}). 
+    \]
+    \item $F$ has at most linear growth: $\exists K > 0$ such that
+    \[
+        \mathbf{y} \in F(\mathbf{x}) \implies \norm{\mathbf{y}} \leq K(1 + \mathbf{x}). 
+    \]
+\end{enumerate}
+
+The iteration tracks the differential inclusion
+\[
+    \dot{\mathbf{x}}(t) \in F(\mathbf{x}(t)).
+\]
+For example,  we have the stochastic subgradient descent, where $F = \partial f$, the subgradient of a convex function $f$ at $\mathbf{x}$, defined as the cone
+\[
+    \partial f(\mathbf{x}) \vcentcolon= \left\{ \mathbf{y} \in \mathbb{R}^d \mid f(\mathbf{z}) \geq f(\mathbf{x}) + \left\langle \mathbf{y}, \mathbf{z-x} \right\rangle \, \forall \mathbf{z} \right\}. 
+\]
