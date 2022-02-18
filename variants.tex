@@ -108,7 +108,7 @@ Now, we replace $a(n)$ by $a(\nu(i,n))$ where
 \[
     \nu(i,n) \vcentcolon= \sum_{m=0}^n\, \I\{i \in S_m\}
 \]
-denotes the `local clock' that counts the number of times component $i$ is updated till time $n$. Then, under some further conditions on $\{a(n)\}$, we have that $\Lambda(t) = \alpha(t) I$ asymptotically. For example, the algorithmic time scale for components $i$ and $j$ are
+denotes the `local clock' that counts the number of times component $i$ is updated till time $n$. Then, under some further conditions on $\{a(n)\}$, we have that $\Lambda(t) = \alpha(t) \mathbf{I}$ asymptotically. For example, the algorithmic time scale for components $i$ and $j$ are
 \[
     \sum_{m=0}^n a(\nu(i,m)) \quad \text{and} \quad \sum_{m=0}^n a(\nu(j,m)) \quad \text{respectively.}
 \]
@@ -126,7 +126,25 @@ For some special algorithms (such as stochastic gradient descent, $\norm{\cdot}_
 \[
     \liminf_{n \uparrow \infty} \frac{\nu(i,n)}{n} > 0 \quad \text{a.s.} \left( \implies \liminf \lambda_i(t) > 0 \quad \text{a.s.} \right)
 \]
-ensures correct convergence. 
+ensures correct convergence. For stochastic gradient descent in particular, we have $h(\mathbf{x}) = -\nabla f(\mathbf{x})$ and
+\[
+    \frac{\D f(\mathbf{x}(t))}{\D t} = -\sum_i \lambda_i(t) \left( \frac{\partial f}{\partial x_i}(\mathbf{x}(t)) \right)^2 < 0
+\]
+except when $\nabla f(\mathbf{x}) = \mathbf{0}$.
+
+For finding fixed points of $\norm{\cdot}_{\infty}$-contractions $F$, we set $h(\mathbf{x}) = F(\mathbf{x}) - \mathbf{x}$, where
+\[
+    \norm{F(\mathbf{x}) - F(\mathbf{y})}_{\infty} \leq \alpha \cdot \norm{\mathbf{x} - \mathbf{y}}_{\infty} \quad \text{for some } \alpha \in (0,1). 
+\]
+By the contraction mapping theorem, there exists a unique fixed point $\mathbf{x}^*$ satisfying $F(\mathbf{x}^*) = \mathbf{x}^*$. If $\lambda_i(t) \geq \delta > 0$ for all $t,i$, then
+\[
+    \Tilde{F}_t(\mathbf{x}) \vcentcolon= (\mathbf{I} - \Lambda(t))\mathbf{x} + \Lambda(t)F(\mathbf{x})
+\]
+satisfies: $\Tilde{F}_t$ is an $\norm{\cdot}_{\infty}$-contraction with contraction factor $(1-\delta(1-\alpha))$ and $\mathbf{x}^*$ is the unique fixed point of $\Tilde{F}_t$ for all $t$. The limiting ODE is then
+\[
+    \dot{\mathbf{x}}(t) = \Lambda(t) (F(\mathbf{x}(t)) - \mathbf{x}(t)) = \Tilde{F}_t(\mathbf{x}(t)) - \mathbf{x}(t).
+\]
+Thus, $\mathbf{x}(t) \to \mathbf{x}^*$ as desired. This scheme is particularly useful in reinforcement learning. 
 
 \subsection{Stochastic Recursive Inclusions}
 
@@ -147,7 +165,7 @@ that is, which satisfies
     \]
     \item $F$ has at most linear growth: $\exists K > 0$ such that
     \[
-        \mathbf{y} \in F(\mathbf{x}) \implies \norm{\mathbf{y}} \leq K(1 + \mathbf{x}). 
+        \mathbf{y} \in F(\mathbf{x}) \implies \norm{\mathbf{y}} \leq K(1 + \norm{\mathbf{x}}). 
     \]
 \end{enumerate}
 
